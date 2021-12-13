@@ -2,6 +2,7 @@ FROM bitnami/laravel:8.6.9-debian-10-r5
 
 LABEL maintainer="Mark.Hsieh <qqzcmark@gmail.com>"
 
+USER root
 RUN apt-get update -y
 RUN apt-get install -y git vim net-tools
 
