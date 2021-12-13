@@ -1,27 +1,63 @@
-version: '2'
+version: '3.3'
 
 services:
-  mariadb:
-    image: docker.io/bitnami/mariadb:10.6
-    environment:
-      # ALLOW_EMPTY_PASSWORD is recommended only for development.
-      - ALLOW_EMPTY_PASSWORD=yes
-      - MARIADB_USER=my_user
-      - MARIADB_DATABASE=my_database
-      - MARIADB_PASSWORD=my_password
-
-  myapp:
-    tty: true
-    image: docker.io/bitnami/laravel:8
-    environment:
-      - DB_HOST=mariadb
-      - DB_USERNAME=my_user
-      - DB_DATABASE=my_database
-      - DB_PASSWORD=my_password
+  project.redis: 
+    image: redis:6.0 
+    container_name: project.redis
+      
+  project.db: 
+    image: mysql:8.0 
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci 
+    container_name: project.db 
+    restart: always 
+    environment: 
+      MYSQL_ROOT_PASSWORD: 123456 
+      MYSQL_USER: "laravel-project" 
+      MYSQL_PASSWORD: "goodday"
+    volumes:
+      - /home/mysql-master:/var/lib/mysql 
+      - type: bind 
+        source: ./compose/mysql/my.cnf 
+        target: /etc/mysql/my.cnf
+    ports:
+      - 3308:3306 
+      
+  project.adminer:
+    image: phpmyadmin 
+    container_name: project.phpmyadmin 
     depends_on:
-      - mariadb
+      - project.db 
+    restart: always 
+    ports: 
+      - 16996:80
+    environment: 
+      PMA_HOST: project.db 
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: 123456
+      #PMA_USER: "root" 
+      #PMA_PASSWORD: "123456" 
+      PMA_ARBITRARY: 1
+
+  project.myapp:
+    tty: true
+    build: 
+        context: ./laravel
+        dockerfile: ./laravel/Dockerfile
+    image: markhsieh4good/laravel:8.6.9-0.1
+    environment:
+      - DB_HOST=project.db
+      - DB_USERNAME=laravel-project
+      - DB_DATABASE=laravel-project
+      - DB_PASSWORD=goodday
+    depends_on:
+      - project.db
     ports:
       - 3000:3000
     volumes:
-      - ./:/app
+      - ./source:/app
     # privileged: true # Privileged mode could be required to run this container under Windows
+
+networks: 
+  default: 
+    external: 
+      name: project-bridge 
