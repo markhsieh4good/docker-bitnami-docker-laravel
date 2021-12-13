@@ -2,8 +2,8 @@ FROM bitnami/laravel:8.6.9-debian-10-r5
 
 LABEL maintainer="Mark.Hsieh <qqzcmark@gmail.com>"
 
-RUN apt update -y
-RUN apt install -y git vim net-tools
+RUN apt-get update -y
+RUN apt-get install -y git vim net-tools
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
