@@ -41,9 +41,10 @@ services:
   project.myapp:
     tty: true
     build: 
-        context: ./laravel
+        context: .
         dockerfile: ./laravel/Dockerfile
-    image: markhsieh4good/laravel:8.6.9-0.1
+    image: markhsieh4good/laravel:8.6.9-0.1 
+    container_name: project.myapp 
     environment:
       - DB_HOST=project.db
       - DB_USERNAME=laravel-project
